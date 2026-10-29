@@ -147,4 +147,3 @@ class AuthStore {
 }
 
 export const auth = new AuthStore();
-
