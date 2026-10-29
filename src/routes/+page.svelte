@@ -1,353 +1,237 @@
 <script>
 	import Heading from '#lib/components/ui/Heading.svelte';
 	import Button from '#lib/components/ui/Button.svelte';
-	import Input from '#lib/components/ui/Input.svelte';
-	import Badge from '#lib/components/ui/Badge.svelte';
 	import Card from '#lib/components/ui/Card.svelte';
-	import Modal from '#lib/components/ui/Modal.svelte';
+	import Badge from '#lib/components/ui/Badge.svelte';
+	import { auth } from '#lib/stores/authStore.svelte.js';
+	import { authService } from '#lib/services/authService.js';
 	import { toast } from '#lib/stores/toastStore.svelte.js';
 
-	// Estados reactivos locales para probar componentes
-	let isBtnLoading = $state(false);
-	let testModalOpen = $state(false);
-
-	let inputStandard = $state('Texto de prueba');
-	let inputPassword = $state('secreto123');
-	let inputErrorVal = $state('correo-invalido');
-	let searchVal = $state('');
-
-	function toggleLoading() {
-		isBtnLoading = !isBtnLoading;
-		setTimeout(() => {
-			isBtnLoading = false;
-		}, 3000);
+	async function handleLogout() {
+		await authService.logout();
+		toast.info('Has cerrado sesión correctamente.');
 	}
 </script>
 
 <svelte:head>
-	<title>Editorialv2 - Catálogo y Auditoría de Componentes Atómicos (Fase 0)</title>
+	<title>Editorialv2 — Inicio</title>
 </svelte:head>
 
-<main class="audit-container">
-	<!-- Encabezado de la página de auditoría -->
-	<header class="audit-header">
-		<div class="audit-brand">
-			<Badge variant="primary" size="md" dot={true}>Fase 0: Auditoría</Badge>
-			<Badge variant="success" size="md">Svelte 5 Runes</Badge>
+<div class="home-container">
+	<header class="home-header">
+		<div class="brand-group">
+			<span class="brand-dot"></span>
+			<Heading level="h2" size="lg" color="primary">Editorialv2</Heading>
 		</div>
 
-		<Heading
-			level="h1"
-			subtitle="Catálogo interactivo de componentes atómicos y tokens para la aprobación del usuario antes de implementar módulos de negocio."
-		>
-			Editorialv2 — Design System & Fundamentos
-		</Heading>
+		<nav class="nav-links">
+			<Button variant="ghost" size="sm" href="/design" iconLeading="palette">Catálogo UI</Button>
+
+			{#if auth.isAuthenticated}
+				<div class="user-pill">
+					<div class="user-avatar">{auth.userInitials}</div>
+					<span class="user-name">{auth.user?.name}</span>
+				</div>
+				<Button variant="outline" size="sm" iconLeading="logout" onclick={handleLogout}>
+					Salir
+				</Button>
+			{:else}
+				<Button variant="primary" size="sm" href="/login" iconLeading="login">
+					Iniciar Sesión
+				</Button>
+			{/if}
+		</nav>
 	</header>
 
-	<div class="audit-grid">
-		<!-- 1. SECCIÓN: TIPOGRAFÍA / HEADING -->
-		<section class="audit-section">
-			<Card padding="md">
-				{#snippet header()}
-					<div class="section-title">
-						<span class="material-symbols-rounded">title</span>
-						<Heading level="h3" size="md">1. Tipografía Semántica (Heading.svelte)</Heading>
-					</div>
-				{/snippet}
-
-				<div class="demo-stack">
-					<Heading level="h1" subtitle="Subtítulo descriptivo complementario para h1">
-						Encabezado Nivel 1 (h1)
+	<main class="home-main">
+		<Card padding="lg" class="welcome-card">
+			{#if auth.isAuthenticated}
+				<div class="auth-welcome">
+					<Badge variant="success" dot={true}>Sesión Activa</Badge>
+					<Heading level="h1" subtitle="Panel de control principal y gestión editorial">
+						¡Bienvenido, {auth.user?.name}!
 					</Heading>
 
-					<Heading level="h2" color="primary">Encabezado Nivel 2 (h2) — Color Primario</Heading>
-
-					<Heading level="h3" color="secondary">Encabezado Nivel 3 (h3) — Color Secundario</Heading>
-
-					<Heading level="h4" color="muted">Encabezado Nivel 4 (h4) — Color Atenuado</Heading>
-				</div>
-			</Card>
-		</section>
-
-		<!-- 2. SECCIÓN: BOTONES / BUTTON -->
-		<section class="audit-section">
-			<Card padding="md">
-				{#snippet header()}
-					<div class="section-title">
-						<span class="material-symbols-rounded">smart_button</span>
-						<Heading level="h3" size="md">2. Botones & Estados (Button.svelte)</Heading>
-					</div>
-				{/snippet}
-
-				<div class="demo-stack">
-					<div>
-						<p class="demo-label">Variantes de Estilo:</p>
-						<div class="demo-row">
-							<Button variant="primary" iconLeading="save">Guardar (Primary)</Button>
-							<Button variant="secondary" iconLeading="refresh">Refrescar</Button>
-							<Button variant="danger" iconLeading="delete">Eliminar</Button>
-							<Button variant="outline" iconLeading="filter_list">Filtros</Button>
-							<Button variant="ghost" iconLeading="close">Cancelar</Button>
-							<Button variant="link">Enlace de texto</Button>
+					<div class="user-details">
+						<div class="detail-item">
+							<span class="detail-label">Correo:</span>
+							<span class="detail-val">{auth.user?.email}</span>
+						</div>
+						<div class="detail-item">
+							<span class="detail-label">Roles:</span>
+							<div class="badges-row">
+								{#if auth.roles.length > 0}
+									{#each auth.roles as role}
+										<Badge variant="primary">{role}</Badge>
+									{/each}
+								{:else}
+									<Badge variant="default">Sin roles asignados</Badge>
+								{/if}
+							</div>
 						</div>
 					</div>
 
-					<div>
-						<p class="demo-label">Tamaños:</p>
-						<div class="demo-row">
-							<Button size="sm" variant="primary">Pequeño (sm)</Button>
-							<Button size="md" variant="primary">Mediano (md)</Button>
-							<Button size="lg" variant="primary">Grande (lg)</Button>
-						</div>
-					</div>
-
-					<div>
-						<p class="demo-label">Estados Reactivos:</p>
-						<div class="demo-row">
-							<Button
-								variant="primary"
-								loading={isBtnLoading}
-								onclick={toggleLoading}
-								iconLeading="bolt"
-							>
-								{isBtnLoading ? 'Procesando...' : 'Probar Loading (3s)'}
-							</Button>
-							<Button variant="primary" disabled={true} iconLeading="block">Deshabilitado</Button>
-						</div>
-					</div>
-				</div>
-			</Card>
-		</section>
-
-		<!-- 3. SECCIÓN: CAMPOS DE ENTRADA / INPUT -->
-		<section class="audit-section">
-			<Card padding="md">
-				{#snippet header()}
-					<div class="section-title">
-						<span class="material-symbols-rounded">edit_note</span>
-						<Heading level="h3" size="md">3. Entradas de Formulario (Input.svelte)</Heading>
-					</div>
-				{/snippet}
-
-				<div class="demo-grid-2">
-					<Input
-						label="Nombre de Usuario"
-						placeholder="Ej: juan.perez"
-						required={true}
-						bind:value={inputStandard}
-						helper="Tu identificador único en la editorial"
-						iconLeading="person"
-					/>
-
-					<Input
-						type="password"
-						label="Contraseña"
-						placeholder="••••••••"
-						required={true}
-						bind:value={inputPassword}
-						helper="Soporta alternador nativo de visibilidad"
-						iconLeading="lock"
-					/>
-
-					<Input
-						type="email"
-						label="Correo Electrónico (con Error)"
-						placeholder="correo@ejemplo.com"
-						bind:value={inputErrorVal}
-						error="El formato del correo ingresado no es válido"
-						iconLeading="mail"
-					/>
-
-					<Input
-						type="search"
-						label="Buscador Rápido"
-						placeholder="Buscar publicaciones..."
-						bind:value={searchVal}
-						iconLeading="search"
-						iconTrailing="filter_alt"
-					/>
-				</div>
-			</Card>
-		</section>
-
-		<!-- 4. SECCIÓN: BADGES & PÍLDORAS DE ESTADO -->
-		<section class="audit-section">
-			<Card padding="md">
-				{#snippet header()}
-					<div class="section-title">
-						<span class="material-symbols-rounded">label</span>
-						<Heading level="h3" size="md">4. Píldoras de Estado (Badge.svelte)</Heading>
-					</div>
-				{/snippet}
-
-				<div class="demo-row">
-					<Badge variant="default">Por Defecto</Badge>
-					<Badge variant="primary" dot={true}>Activo</Badge>
-					<Badge variant="secondary" icon="devices">Dispositivo</Badge>
-					<Badge variant="success" dot={true}>Aprobado</Badge>
-					<Badge variant="warning" icon="schedule">Pendiente</Badge>
-					<Badge variant="error" icon="block">Rechazado</Badge>
-					<Badge variant="info" icon="info">Información</Badge>
-				</div>
-			</Card>
-		</section>
-
-		<!-- 5. SECCIÓN: TOASTS REACTIVOS & MODAL -->
-		<section class="audit-section">
-			<Card padding="md">
-				{#snippet header()}
-					<div class="section-title">
-						<span class="material-symbols-rounded">notifications</span>
-						<Heading level="h3" size="md">5. Notificaciones Toast & Ventanas Modales</Heading>
-					</div>
-				{/snippet}
-
-				<div class="demo-stack">
-					<div>
-						<p class="demo-label">Disparadores del Store de Toasts:</p>
-						<div class="demo-row">
-							<Button
-								variant="primary"
-								size="sm"
-								iconLeading="check_circle"
-								onclick={() => toast.success('¡Operación realizada con éxito!')}
-							>
-								Toast Success
-							</Button>
-							<Button
-								variant="danger"
-								size="sm"
-								iconLeading="error"
-								onclick={() => toast.error('Ocurrió un error al procesar la solicitud.')}
-							>
-								Toast Error
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								iconLeading="warning"
-								onclick={() => toast.warning('Advertencia: El canal no tiene contenido.')}
-							>
-								Toast Warning
-							</Button>
-							<Button
-								variant="secondary"
-								size="sm"
-								iconLeading="info"
-								onclick={() => toast.info('Nueva actualización de sistema disponible.')}
-							>
-								Toast Info
-							</Button>
-						</div>
-					</div>
-
-					<div>
-						<p class="demo-label">Diálogo Modal Accesible (Focus Trap, Escape, Backdrop):</p>
-						<Button
-							variant="primary"
-							iconLeading="open_in_new"
-							onclick={() => (testModalOpen = true)}
-						>
-							Abrir Modal de Demostración
+					<div class="actions-row">
+						<Button variant="primary" iconLeading="dashboard">Ir al Dashboard</Button>
+						<Button variant="secondary" href="/design" iconLeading="palette">
+							Ver Design System
 						</Button>
 					</div>
 				</div>
-			</Card>
-		</section>
-	</div>
-</main>
+			{:else}
+				<div class="guest-welcome">
+					<Badge variant="primary" dot={true}>Fase 1.1: Autenticación</Badge>
+					<Heading
+						level="h1"
+						subtitle="Sistema integral de publicaciones y pantallas digitales en SvelteKit."
+					>
+						Plataforma Editorialv2
+					</Heading>
 
-<!-- Modal de Prueba -->
-<Modal bind:open={testModalOpen} title="Modal de Demostración Profesional" size="md">
-	<p style="margin-bottom: 1rem; color: var(--text-secondary);">
-		Este modal incluye bloqueo de fondo (backdrop), soporte para cerrar presionando la tecla <strong
-			>Escape</strong
-		>, foco accesible y composición limpia mediante snippets de Svelte 5.
-	</p>
-	<Input label="Campo dentro del Modal" placeholder="Prueba interactiva..." iconLeading="chat" />
+					<p class="description">
+						El módulo de inicio de sesión de usuario ya se encuentra disponible para su
+						verificación. Inicia sesión con tus credenciales o explora el catálogo de componentes de
+						diseño.
+					</p>
 
-	{#snippet footer()}
-		<Button variant="ghost" onclick={() => (testModalOpen = false)}>Cancelar</Button>
-		<Button
-			variant="primary"
-			iconLeading="check"
-			onclick={() => {
-				testModalOpen = false;
-				toast.success('Cambios del modal confirmados.');
-			}}
-		>
-			Confirmar Acción
-		</Button>
-	{/snippet}
-</Modal>
+					<div class="actions-row">
+						<Button variant="primary" size="lg" href="/login" iconLeading="login">
+							Ir al Login de Usuario
+						</Button>
+						<Button variant="outline" size="lg" href="/design" iconLeading="palette">
+							Explorar Catálogo UI
+						</Button>
+					</div>
+				</div>
+			{/if}
+		</Card>
+	</main>
+</div>
 
 <style>
-	.audit-container {
-		max-width: 1100px;
+	.home-container {
+		max-width: 1000px;
 		margin: 0 auto;
-		padding: 2.5rem 1.5rem;
+		padding: 1.5rem;
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
 	}
 
-	.audit-header {
-		margin-bottom: 2rem;
+	.home-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding-bottom: 1.25rem;
 		border-bottom: 1px solid var(--border);
-		padding-bottom: 1.5rem;
+		margin-bottom: 2.5rem;
 	}
 
-	.audit-brand {
+	.brand-group {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		margin-bottom: 0.75rem;
+		gap: 0.625rem;
 	}
 
-	.audit-grid {
-		display: flex;
-		flex-direction: column;
-		gap: 1.75rem;
+	.brand-dot {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		background-color: var(--primary);
+		box-shadow: 0 0 0 4px var(--primary-container);
 	}
 
-	.audit-section {
-		width: 100%;
-	}
-
-	.section-title {
+	.nav-links {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		color: var(--primary-dark);
-	}
-
-	.section-title .material-symbols-rounded {
-		font-size: 1.5rem;
-		color: var(--primary);
-	}
-
-	.demo-stack {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
-
-	.demo-row {
-		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
 		gap: 0.75rem;
 	}
 
-	.demo-grid-2 {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-		gap: 1rem;
+	.user-pill {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.25rem 0.625rem;
+		background-color: var(--surface-variant);
+		border-radius: var(--radius-full);
 	}
 
-	.demo-label {
-		font-size: 0.8125rem;
+	.user-avatar {
+		width: 26px;
+		height: 26px;
+		border-radius: 50%;
+		background-color: var(--primary);
+		color: #ffffff;
+		font-size: 0.75rem;
 		font-weight: 700;
-		color: var(--text-muted);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.user-name {
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--text);
+	}
+
+	.home-main {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.auth-welcome,
+	.guest-welcome {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+
+	.description {
+		font-size: 1.0625rem;
+		color: var(--text-secondary);
+		max-width: 600px;
+		line-height: 1.6;
+	}
+
+	.user-details {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		background-color: var(--surface-variant);
+		padding: 1rem 1.25rem;
+		border-radius: var(--radius-md);
+	}
+
+	.detail-item {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		font-size: 0.9375rem;
+	}
+
+	.detail-label {
+		font-weight: 700;
+		color: var(--text-secondary);
+		min-width: 80px;
+	}
+
+	.detail-val {
+		color: var(--text);
+	}
+
+	.badges-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+	}
+
+	.actions-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.875rem;
+		margin-top: 0.5rem;
 	}
 </style>

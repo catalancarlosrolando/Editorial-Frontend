@@ -104,4 +104,3 @@
 		color: var(--on-info-container);
 	}
 </style>
-
