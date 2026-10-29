@@ -65,4 +65,3 @@ class DeviceStore {
 }
 
 export const device = new DeviceStore();
-

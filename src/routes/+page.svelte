@@ -28,10 +28,12 @@
 			<Button variant="ghost" size="sm" href="/design" iconLeading="palette">Catálogo UI</Button>
 
 			{#if auth.isAuthenticated}
-				<div class="user-pill">
-					<div class="user-avatar">{auth.userInitials}</div>
-					<span class="user-name">{auth.user?.name}</span>
-				</div>
+				<a href="/profile" class="user-pill-link" title="Ver mi perfil">
+					<div class="user-pill">
+						<div class="user-avatar">{auth.userInitials}</div>
+						<span class="user-name">{auth.user?.name}</span>
+					</div>
+				</a>
 				<Button variant="outline" size="sm" iconLeading="logout" onclick={handleLogout}>
 					Salir
 				</Button>
@@ -75,7 +77,9 @@
 					</div>
 
 					<div class="actions-row">
-						<Button variant="primary" iconLeading="dashboard">Ir al Dashboard</Button>
+						<Button variant="primary" href="/profile" iconLeading="account_circle">
+							Mi Perfil
+						</Button>
 						<Button variant="secondary" href="/design" iconLeading="palette">
 							Ver Design System
 						</Button>
@@ -83,7 +87,7 @@
 				</div>
 			{:else}
 				<div class="guest-welcome">
-					<Badge variant="primary" dot={true}>Fase 1.2: Registro de Usuario</Badge>
+					<Badge variant="primary" dot={true}>Fase 1: Autenticación Completa</Badge>
 					<Heading
 						level="h1"
 						subtitle="Sistema integral de publicaciones y pantallas digitales en SvelteKit."
@@ -92,9 +96,8 @@
 					</Heading>
 
 					<p class="description">
-						Los módulos de inicio de sesión y registro de usuarios ya se encuentran disponibles para
-						su verificación. Inicia sesión con tus credenciales, date de alta en la plataforma o
-						explora el catálogo de componentes.
+						El módulo de autenticación (Login de usuario y pantalla, Registro, Recuperación de
+						contraseña y Perfil de usuario) ya se encuentra completamente funcional.
 					</p>
 
 					<div class="actions-row">
@@ -153,6 +156,10 @@
 		gap: 0.75rem;
 	}
 
+	.user-pill-link {
+		text-decoration: none;
+	}
+
 	.user-pill {
 		display: flex;
 		align-items: center;
@@ -160,6 +167,11 @@
 		padding: 0.25rem 0.625rem;
 		background-color: var(--surface-variant);
 		border-radius: var(--radius-full);
+		transition: var(--transition);
+	}
+
+	.user-pill-link:hover .user-pill {
+		background-color: var(--primary-container);
 	}
 
 	.user-avatar {
