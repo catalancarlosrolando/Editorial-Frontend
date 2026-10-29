@@ -36,6 +36,9 @@
 					Salir
 				</Button>
 			{:else}
+				<Button variant="ghost" size="sm" href="/register" iconLeading="person_add">
+					Registrarse
+				</Button>
 				<Button variant="primary" size="sm" href="/login" iconLeading="login">
 					Iniciar Sesión
 				</Button>
@@ -80,7 +83,7 @@
 				</div>
 			{:else}
 				<div class="guest-welcome">
-					<Badge variant="primary" dot={true}>Fase 1.1: Autenticación</Badge>
+					<Badge variant="primary" dot={true}>Fase 1.2: Registro de Usuario</Badge>
 					<Heading
 						level="h1"
 						subtitle="Sistema integral de publicaciones y pantallas digitales en SvelteKit."
@@ -89,17 +92,20 @@
 					</Heading>
 
 					<p class="description">
-						El módulo de inicio de sesión de usuario ya se encuentra disponible para su
-						verificación. Inicia sesión con tus credenciales o explora el catálogo de componentes de
-						diseño.
+						Los módulos de inicio de sesión y registro de usuarios ya se encuentran disponibles para
+						su verificación. Inicia sesión con tus credenciales, date de alta en la plataforma o
+						explora el catálogo de componentes.
 					</p>
 
 					<div class="actions-row">
 						<Button variant="primary" size="lg" href="/login" iconLeading="login">
-							Ir al Login de Usuario
+							Iniciar Sesión
+						</Button>
+						<Button variant="secondary" size="lg" href="/register" iconLeading="person_add">
+							Crear Cuenta
 						</Button>
 						<Button variant="outline" size="lg" href="/design" iconLeading="palette">
-							Explorar Catálogo UI
+							Catálogo UI
 						</Button>
 					</div>
 				</div>

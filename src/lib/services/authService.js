@@ -14,6 +14,17 @@ import { auth } from '#lib/stores/authStore.svelte.js';
  * @property {import('#lib/stores/authStore.svelte.js').UserProfile} user
  */
 
+/**
+ * @typedef {Object} RegisterData
+ * @property {string} firstName
+ * @property {string} lastName
+ * @property {string} email
+ * @property {string} password
+ * @property {string} passwordConfirm
+ * @property {string} [mobile]
+ * @property {string} [semanticContext]
+ */
+
 export const authService = {
 	/**
 	 * Inicia sesión con credenciales de usuario
@@ -45,6 +56,116 @@ export const authService = {
 	},
 
 	/**
+	 * Registra un nuevo usuario en la plataforma
+	 * @param {RegisterData} data
+	 * @returns {Promise<{token?: string, user?: import('#lib/stores/authStore.svelte.js').UserProfile, message: string}>}
+	 */
+	async register({
+		firstName,
+		lastName,
+		email,
+		password,
+		passwordConfirm,
+		mobile = '',
+		semanticContext = ''
+	}) {
+		if (
+			!firstName?.trim() ||
+			!lastName?.trim() ||
+			!email?.trim() ||
+			!password ||
+			!passwordConfirm
+		) {
+			throw new Error('Completa todos los campos obligatorios marcados con asterisco (*).');
+		}
+
+		if (password !== passwordConfirm) {
+			throw new Error('Las contraseñas no coinciden.');
+		}
+
+		if (password.length < 8) {
+			throw new Error('La contraseña debe tener al menos 8 caracteres.');
+		}
+
+		const res = await api.post('/register', {
+			first_name: firstName.trim(),
+			last_name: lastName.trim(),
+			name: `${firstName.trim()} ${lastName.trim()}`,
+			mobile: mobile.trim() || null,
+			semantic_context: semanticContext.trim() || null,
+			email: email.trim(),
+			password,
+			password_confirmation: passwordConfirm
+		});
+
+		const payload = res?.data || res;
+		const token = payload?.token;
+		const user = payload?.user;
+
+		if (token && user) {
+			auth.setAuth(token, user);
+		}
+
+		return {
+			token,
+			user,
+			message: res?.message || '¡Cuenta creada exitosamente!'
+		};
+	},
+
+	/**
+	 * Registra un nuevo usuario en la plataforma
+	 * @param {RegisterData} data
+	 * @returns {Promise<{token?: string, user?: import('#lib/stores/authStore.svelte.js').UserProfile, message: string}>}
+	 */
+	async register({
+		firstName,
+		lastName,
+		email,
+		password,
+		passwordConfirm,
+		mobile = '',
+		semanticContext = ''
+	}) {
+		if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !password || !passwordConfirm) {
+			throw new Error('Completa todos los campos obligatorios marcados con asterisco (*).');
+		}
+
+		if (password !== passwordConfirm) {
+			throw new Error('Las contraseñas no coinciden.');
+		}
+
+		if (password.length < 8) {
+			throw new Error('La contraseña debe tener al menos 8 caracteres.');
+		}
+
+		const res = await api.post('/register', {
+			first_name: firstName.trim(),
+			last_name: lastName.trim(),
+			name: `${firstName.trim()} ${lastName.trim()}`,
+			mobile: mobile.trim() || null,
+			semantic_context: semanticContext.trim() || null,
+			email: email.trim(),
+			password,
+			password_confirmation: passwordConfirm
+		});
+
+		const payload = res?.data || res;
+		const token = payload?.token;
+		const user = payload?.user;
+
+		if (token && user) {
+			auth.setAuth(token, user);
+		}
+
+		return {
+			token,
+			user,
+			message: res?.message || '¡Cuenta creada exitosamente!'
+		};
+	},
+
+	/**
 	 * Obtiene el perfil del usuario autenticado
 	 */
 	async getProfile() {
@@ -71,4 +192,3 @@ export const authService = {
 		}
 	}
 };
-
