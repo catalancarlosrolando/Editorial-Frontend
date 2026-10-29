@@ -25,6 +25,14 @@ import { auth } from '#lib/stores/authStore.svelte.js';
  * @property {string} [semanticContext]
  */
 
+/**
+ * @typedef {Object} ResetPasswordData
+ * @property {string} token
+ * @property {string} email
+ * @property {string} password
+ * @property {string} passwordConfirm
+ */
+
 export const authService = {
 	/**
 	 * Inicia sesión con credenciales de usuario
@@ -42,7 +50,6 @@ export const authService = {
 			remember
 		});
 
-		// Manejo de estructura estándar de respuesta
 		const payload = res?.data || res;
 		const token = payload?.token;
 		const user = payload?.user;
@@ -114,21 +121,32 @@ export const authService = {
 	},
 
 	/**
-	 * Registra un nuevo usuario en la plataforma
-	 * @param {RegisterData} data
-	 * @returns {Promise<{token?: string, user?: import('#lib/stores/authStore.svelte.js').UserProfile, message: string}>}
+	 * Solicita el enlace de recuperación de contraseña
+	 * @param {string} email
+	 * @returns {Promise<{message: string}>}
 	 */
-	async register({
-		firstName,
-		lastName,
-		email,
-		password,
-		passwordConfirm,
-		mobile = '',
-		semanticContext = ''
-	}) {
-		if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !password || !passwordConfirm) {
-			throw new Error('Completa todos los campos obligatorios marcados con asterisco (*).');
+	async forgotPassword(email) {
+		if (!email?.trim()) {
+			throw new Error('Ingresa tu correo electrónico.');
+		}
+
+		const res = await api.post('/password/forgot', {
+			email: email.trim()
+		});
+
+		return {
+			message: res?.message || 'Enlace de recuperación enviado a tu correo electrónico.'
+		};
+	},
+
+	/**
+	 * Restablece la contraseña utilizando el token recibido por correo
+	 * @param {ResetPasswordData} data
+	 * @returns {Promise<{message: string}>}
+	 */
+	async resetPassword({ token, email, password, passwordConfirm }) {
+		if (!token || !email || !password || !passwordConfirm) {
+			throw new Error('Todos los campos son obligatorios para restablecer la contraseña.');
 		}
 
 		if (password !== passwordConfirm) {
@@ -139,29 +157,26 @@ export const authService = {
 			throw new Error('La contraseña debe tener al menos 8 caracteres.');
 		}
 
-		const res = await api.post('/register', {
-			first_name: firstName.trim(),
-			last_name: lastName.trim(),
-			name: `${firstName.trim()} ${lastName.trim()}`,
-			mobile: mobile.trim() || null,
-			semantic_context: semanticContext.trim() || null,
+		const res = await api.post('/password/reset', {
+			token,
 			email: email.trim(),
 			password,
 			password_confirmation: passwordConfirm
 		});
 
-		const payload = res?.data || res;
-		const token = payload?.token;
-		const user = payload?.user;
-
-		if (token && user) {
-			auth.setAuth(token, user);
-		}
-
 		return {
-			token,
-			user,
-			message: res?.message || '¡Cuenta creada exitosamente!'
+			message: res?.message || 'Contraseña actualizada exitosamente.'
+		};
+	},
+
+	/**
+	 * Reenvía el correo de verificación de cuenta al usuario autenticado
+	 * @returns {Promise<{message: string}>}
+	 */
+	async resendEmailVerification() {
+		const res = await api.post('/email/resend', {}, { auth: true });
+		return {
+			message: res?.message || 'Correo de verificación reenviado exitosamente.'
 		};
 	},
 
