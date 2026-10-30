@@ -14,7 +14,7 @@
 	 * @property {boolean} [readonly=false]
 	 * @property {string} [iconLeading] - Icono Material Symbols a la izquierda
 	 * @property {string} [iconTrailing] - Icono Material Symbols a la derecha
-	 * @property {string} [autocomplete]
+	 * @property {import('svelte/elements').HTMLInputAttributes['autocomplete']} [autocomplete]
 	 * @property {string} [class]
 	 */
 

@@ -1,4 +1,6 @@
 <script>
+	import { focusTrap } from '#lib/utils/focusTrap.js';
+
 	/**
 	 * @typedef {Object} ModalProps
 	 * @property {boolean} [open=false] - Control de apertura bidireccional ($bindable)
@@ -32,6 +34,9 @@
 		if (onclose) onclose();
 	}
 
+	/**
+	 * @param {KeyboardEvent} event
+	 */
 	function handleKeydown(event) {
 		if (event.key === 'Escape' && open && closeOnEscape) {
 			event.preventDefault();
@@ -39,6 +44,9 @@
 		}
 	}
 
+	/**
+	 * @param {MouseEvent} event
+	 */
 	function handleBackdropClick(event) {
 		if (event.target === event.currentTarget && closeOnBackdrop) {
 			close();
@@ -55,6 +63,7 @@
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby={title ? titleId : undefined}
+			use:focusTrap
 		>
 			<div class="modal-header">
 				{#if header}
